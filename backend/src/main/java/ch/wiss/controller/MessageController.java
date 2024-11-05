@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.wiss.model.Message;
 import ch.wiss.repositories.MessageRepository;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/messages")
@@ -34,17 +35,17 @@ public class MessageController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<Iterable<Message>> getQuestions() {
+    public ResponseEntity<Iterable<Message>> getMessages() {
         return ResponseEntity.ok().body(messageRepository.findAll());
     }
 
     @PostMapping
-    public Message sendMessage(@RequestBody Message message) {
+    public Message sendMessage(@Valid @RequestBody Message message) {
         return messageRepository.save(message);
     }
 
     @PutMapping("/{messageId}")
-    public ResponseEntity<Message> updateMessage(@PathVariable Long messageId, @RequestBody Message updatedMessage) {
+    public ResponseEntity<Message> updateMessage(@Valid @PathVariable Long messageId, @Valid @RequestBody Message updatedMessage) {
         return messageRepository.findById(messageId)
         .map(existingMessage -> {
             existingMessage.setMessageContent(updatedMessage.getMessageContent());

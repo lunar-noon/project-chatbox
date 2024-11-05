@@ -75,21 +75,21 @@
                         return;
                     }
                     
-
-                    try {
-                        const userResponse = await fetch("/users", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ name: user })
-                        });
-                        const userData = await userResponse.json();
-                        userId = userData.userId;
-                    } catch (error) {
-                        console.error("Error creating user:", error);
-                        return;
-                    }
+                    
+                    await fetch("/users", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ name: user })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        userId = data.userId;
+                        console.log("Username saved:", data);
+                    })                    
+                    .catch(error => console.error("Error saving Username:", error));
+                    
                 }
                 
                 const msg = {
@@ -109,10 +109,6 @@
                 .catch(error => console.error("Error saving message:", error));
                 input.value = '';
 
-
-
-
-                
                 ws.send(JSON.stringify(msg));
                 input.value = '';
             }

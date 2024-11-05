@@ -2,6 +2,8 @@ package ch.wiss.model;
 
 import java.time.LocalDateTime;
 
+import org.springframework.validation.annotation.Validated;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,13 +12,16 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@Validated
 public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
 
+    @NotNull(message = "Sender cannot be empty")
     private Long senderId;
+    @NotNull(message = "Recipient cannot be empty")
     private Long recipientId;
     @NotNull(message = "Message cannot be empty")
     @Size(min = 1, max = 500, message = "The Message must be under 500 characters long!")
