@@ -17,7 +17,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     @NotNull(message = "Username cannot be empty")
-    @Size(min = 1, max = 20, message = "The Username must be under 20 characters long!")
+    @Size(min = 3, max = 20, message = "The Username must be between 3 and 20 characters long!")
     private String name;
 
     public User() {}

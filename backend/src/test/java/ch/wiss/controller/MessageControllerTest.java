@@ -44,13 +44,13 @@ public class MessageControllerTest {
 	* @Test Annotation darüber
 	*/
 	@Test
-	public void whenQuestionControllerInjected_thenNotNull() throws Exception {
-	    assertThat(messageController).isNotNull(); //hier wird nur geprüft, ob unser SUT existiert
+	public void whenMessageControllerInjected_thenNotNull() throws Exception {
+	    assertThat(messageController).isNotNull(); //hier wird geprüft, ob das SUT existiert
 	}
 
 	@Test
-	public void whenGetAllQuestions_getValidQuestions() throws Exception{
-    mockMvc.perform(MockMvcRequestBuilders.get("/question"))
+	public void whenGetAllMessages_getValidMessages() throws Exception{
+    mockMvc.perform(MockMvcRequestBuilders.get("/messages/"))
     // damit kannst du das eigentliche Ergebnis der Abfrage auf der Konsole ausgeben
     .andDo(res -> System.out.println(res.getResponse().getContentAsString())) 
     .andExpect(MockMvcResultMatchers.status().isOk())		
