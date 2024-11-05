@@ -51,12 +51,11 @@
     const ws = new WebSocket("ws://localhost:8080/chat");
     const chatLog = document.getElementById("chat-log");
     let user = '';  // Variable to store the username
-    let userId;
+    let userId;  // Variable to store the userID
 
     ws.onmessage = function(event) {
     const messageData = JSON.parse(event.data);
     const messageElement = document.createElement("p");
-    // Display the actual sender's name, not the local `user` variable
     messageElement.textContent = `${messageData.senderName}: ${messageData.messageContent}`;
     chatLog.appendChild(messageElement);
     chatLog.scrollTop = chatLog.scrollHeight;
@@ -76,7 +75,7 @@
                         return;
                     }
                     
-                    // Create user in the backend
+
                     try {
                         const userResponse = await fetch("/users", {
                             method: 'POST',
@@ -127,7 +126,7 @@
         .then(response => {
             if (response.ok) {
                 console.log(`Message ${messageId} deleted`);
-                loadMessages();  // Refresh the messages after deletion
+                loadMessages();
             } else {
                 console.error("Failed to delete message");
             }
@@ -153,7 +152,7 @@
         .then(response => {
             if (response.ok) {
                 console.log(`Message ${messageId} updated`);
-                loadMessages();  // Reload messages to show the updated content
+                loadMessages()
             } else {
                 console.error("Failed to update message");
             }

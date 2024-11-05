@@ -21,5 +21,4 @@ public class UserController {
         return userRepository.save(user);
     }
     
-    // You could add additional endpoints for fetching or updating users
 }

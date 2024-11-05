@@ -28,6 +28,11 @@ public class MessageController {
         return messageRepository.findBySenderIdAndRecipientId(senderId, recipientId);
     }
 
+    @GetMapping("/{senderId}")
+    public List<Message> getMessagesByID(@PathVariable Long senderId) {
+        return messageRepository.findBySenderId(senderId);
+    }
+
     @GetMapping("/")
     public ResponseEntity<Iterable<Message>> getQuestions() {
         return ResponseEntity.ok().body(messageRepository.findAll());
