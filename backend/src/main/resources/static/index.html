@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light only">
+    <title>Chat-App</title>
+</head>
+<body>
+    <div>
+        <h2>Chat:</h2>
+        <p>
+            <input type="text" id="chat-message" placeholder="Type a message..." onkeypress="sendMessage(event)">
+            <span id="chat-log"></span>
+        </p>
+        <button onclick="loadMessages()">Load Messages</button>
+    </div>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: rgba(0, 0, 0, 0.85);
+        color: rgb(76, 222, 76);
+    }
+    p {
+        color: white;
+    }
+    div {
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        margin-bottom: 10px;
+    }
+    input {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(76, 222, 76, 0.588);
+        border-radius: 5px;
+    }
+    #server-time {
+        font-size: 24px;
+    }
+    #chat-message {
+        width: 95%;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    #chat-log {
+        max-height: 505px;
+        overflow-y: auto;
+        display: block;
+    }
+</style>
+<script>
+    const ws = new WebSocket("ws://localhost:8080/chat");
+    const chatLog = document.getElementById("chat-log");
+    let user = '';  // Variable to store the username
+    let userId;  // Variable to store the userID
+
+    ws.onmessage = function(event) {
+    const messageData = JSON.parse(event.data);
+    const messageElement = document.createElement("p");
+    messageElement.textContent = `${messageData.senderName}: ${messageData.messageContent}`;
+    chatLog.appendChild(messageElement);
+    chatLog.scrollTop = chatLog.scrollHeight;
+};
+
+
+
+    async function sendMessage(event) {
+        if (event.key === 'Enter') {
+            const input = document.getElementById("chat-message");
+            const message = input.value.trim();
+            if (message !== '') {
+                if (user === '') {
+                    user = prompt("Please enter your username:");
+                    if (!user) {
+                        alert("Username is required to send messages.");
+                        return;
+                    }
+                    
+
+                    try {
+                        const userResponse = await fetch("/users", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ name: user })
+                        });
+                        const userData = await userResponse.json();
+                        userId = userData.userId;
+                    } catch (error) {
+                        console.error("Error creating user:", error);
+                        return;
+                    }
+                }
+                
+                const msg = {
+                    senderId: userId,
+                    recipientId: 2,
+                    messageContent: message
+                };
+                fetch("/messages", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(msg)
+                })
+                .then(response => response.json())
+                .then(data => console.log("Message sent and saved:", data))
+                .catch(error => console.error("Error saving message:", error));
+                input.value = '';
+
+
+
+
+                
+                ws.send(JSON.stringify(msg));
+                input.value = '';
+            }
+        }
+    }
+
+    function deleteMessage(messageId) {
+        fetch(`/messages/${messageId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log(`Message ${messageId} deleted`);
+                loadMessages();
+            } else {
+                console.error("Failed to delete message");
+            }
+        })
+        .catch(error => console.error("Error deleting message:", error));
+    }
+
+    function editMessage(messageId, currentContent) {
+
+        const newContent = prompt("Edit your message:", currentContent);
+        
+        if (newContent === null || newContent.trim() === currentContent) {
+            return;
+        }
+        
+        fetch(`/messages/${messageId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ messageContent: newContent })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log(`Message ${messageId} updated`);
+                loadMessages()
+            } else {
+                console.error("Failed to update message");
+            }
+        })
+        .catch(error => console.error("Error updating message:", error));
+    }
+    
+
+    function loadMessages() {
+        fetch(`/messages/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                chatLog.innerHTML = '';
+                data.forEach(message => {
+                    const messageElement = document.createElement("p");
+                    messageElement.textContent = `${message.senderId}: ${message.messageContent}`;
+                    chatLog.appendChild(messageElement);
+                });
+            })
+            .catch(error => console.error("Error loading messages:", error));
+    }
+</script>
+</body>
+</html>
